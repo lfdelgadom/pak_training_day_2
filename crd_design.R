@@ -4,7 +4,8 @@ rm(list = ls())
 # Load required libraries using pacman for easy loading
 # install.packages("pacman") # in case you do not have the library, please install it.
 library(pacman)
-pacman::p_load(tidyverse, desplot, plotly, broom, emmeans, multcomp, multcompView)
+pacman::p_load(tidyverse, desplot, plotly, broom, emmeans, multcomp, multcompView, 
+               agricolae)
 
 # Read the data from a CSV file
 data <- read_csv("data/CRD.csv")
@@ -96,14 +97,42 @@ mean_comparisons$emmeans
 # -------------------------------------------------------------------------
 
 # Plot for visualizing raw data, adjusted means, and confidence intervals
-ggplot() +
+tukey_plot <- ggplot() +
   geom_point(data = data, aes(y = yield, x = variety)) +
   geom_point(data = mean_comparisons$emmeans, aes(y = emmean, x = variety), color = "red", position = position_nudge(x = 0.1)) +
   geom_errorbar(data = mean_comparisons$emmeans, aes(ymin = lower.CL, ymax = upper.CL, x = variety), color = "red", width = 0.1, position = position_nudge(x = 0.1)) +
   geom_text(data = mean_comparisons$emmeans, aes(y = emmean, x = variety, label = .group), color = "red", position = position_nudge(x = 0.2)) + 
-  ylim(0, NA) + ylab("Yield in t/ha") + xlab("Variety") +
+  ylim(0, NA) + ylab("Yield (t/ha)") + xlab("Variety") +
   labs(caption = "Black dots: Raw data. Red: Adjusted mean and 95% confidence limits. Common letter: Not significantly different (Tukey-test)") +
   theme_bw()
+
+tukey_plot
+
+ggsave(paste0("images\\tukey", Sys.Date(), ".png"),
+    plot = tukey_plot, units = "in", dpi = 300, width = 8, height = 6
+  )
+
+
+# Plot for means
+tukey_plot_mean <- ggplot() +
+  geom_col(
+    data = mean_comparisons$emmeans,
+    aes(y = emmean, x = variety, fill = variety
+    ), col = "black") + 
+  geom_text(data = mean_comparisons$emmeans, 
+            aes(y = emmean, x = variety, label = .group), 
+            position = position_nudge(y = 0.6, x = 0), size = 5) + 
+  ylim(0, NA) + ylab("Yield (t/ha)") + xlab("Variety") +
+  labs(caption = "Common letter: Not significantly different (Tukey-test)") +
+  theme_bw()
+
+tukey_plot_mean
+
+ggsave(paste0("images\\tukey_mean", Sys.Date(), ".png"),
+       plot = tukey_plot_mean, units = "in", dpi = 300, width = 8, height = 6
+)
+
+
 
 # -------------------------------------------------------------------------
 # LSD Test
