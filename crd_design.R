@@ -32,6 +32,10 @@ g1 <- data %>%
         panel.grid.minor = element_blank())
 g1
 
+ggsave(paste0("images\\g1", Sys.Date(), ".png"),
+       plot = g1, units = "in", dpi = 300, width = 8, height = 6
+)
+
 # Convert ggplot2 graph to interactive plot using plotly
 ggplotly(g1)
 
@@ -57,10 +61,15 @@ g2
 g3 <- data %>% 
   ggplot(aes(x = variety, y = yield, fill = variety)) +
   geom_boxplot() +
-  theme_bw() +
-  labs(title = "Yield distribution by variety")
-g3
+  geom_point() +
+  labs(y = "Yield (t/ha)", x = "Variety", fill = "Variety") +
+  theme_bw() 
+ g3
 
+ ggsave(paste0("images\\g3", Sys.Date(), ".png"),
+        plot = g3, units = "in", dpi = 300, width = 8, height = 6
+ ) 
+ 
 # Convert boxplot to interactive plot
 ggplotly(g3)
 
